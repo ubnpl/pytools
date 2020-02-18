@@ -15,7 +15,6 @@ import PyPDF2
 
 
 # creating an object 
-#file = open('nchemex.pdf', 'rb')
 file = open('nchemex.pdf', 'rb')
 
 
@@ -294,7 +293,7 @@ vocabulary.most_common(n=5)
 
 # In[45]:
 
-
+# get vocabulary keys
 vocabulary.keys()
 
 
