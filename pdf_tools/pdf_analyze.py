@@ -14,7 +14,7 @@ import PyPDF2
 # In[2]:
 
 
-# creating an object 
+# creating an object and open file 
 file = open('nchemex.pdf', 'rb')
 
 
@@ -46,7 +46,7 @@ page = fileReader.getPage(0)
 
 # In[7]:
 
-
+#now get page content
 page_content = page.extractText()
 
 
@@ -104,7 +104,7 @@ parsedPDF
 
 # In[16]:
 
-
+# get PDFkeys form metadata
 parsedPDF.keys()
 
 
