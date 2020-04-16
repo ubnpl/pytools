@@ -14,7 +14,8 @@ import PyPDF2
 # In[2]:
 
 
-# creating an object and open file 
+# creating an object 
+#file = open('nchemex.pdf', 'rb')
 file = open('nchemex.pdf', 'rb')
 
 
@@ -46,7 +47,7 @@ page = fileReader.getPage(0)
 
 # In[7]:
 
-#now get page content
+
 page_content = page.extractText()
 
 
@@ -104,7 +105,7 @@ parsedPDF
 
 # In[16]:
 
-# get PDFkeys form metadata
+
 parsedPDF.keys()
 
 
@@ -293,7 +294,7 @@ vocabulary.most_common(n=5)
 
 # In[45]:
 
-# get vocabulary keys
+
 vocabulary.keys()
 
 
