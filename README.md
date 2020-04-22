@@ -1,2 +1,2 @@
 # pytools
-simple tools in python
+simple tools for data handling and analysis in python
