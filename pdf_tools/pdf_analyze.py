@@ -1,189 +1,225 @@
 
 # coding: utf-8
 
-# # Import PDF and analyze
+# # Import PDF and analyze content
+# 
+# Example notebook for how to read and analyze PDF files
 
-# ## Test PyPDF2
+# #### Python environment installation instructions
+# 
+# General Packages:
+# 
+#     conda install numpy scipy matplotlib jupyter
+# 
+# PDF-specific packages:
+# 
+#     pip install pypdf2
+#     conda install tika
+# 
+# Text analysis:
+# 
+#     conda install nltk
+# 
+#     Download additional nltk ressources in python shell
+# 
+#         python nltk.download('punkt')
+#         python nltk.download('averaged_perceptron_tagger')
+#         python nltk.download('maxent_ne_chunker')
+#         python nltk.download('words')
+#         python nltk.download('treebank')
+#         python nltk.download('stopwords')
+
+# #### Example PDF file
+# 
+# The PDF file used in the example below can be downloaded from:
+# 
+#     https://doi.org/10.1073/pnas.1117201109
 
 # In[1]:
 
 
-import PyPDF2
+# set PDF filename/filepath parameter; this PDF file will be used in all examples; 
+pdf_name = '12980.full.pdf'
 
+
+# ## Get Text and Metadata from PDF using PyPDF2
+# 
+# https://pythonhosted.org/PyPDF2/
 
 # In[2]:
 
 
-# creating an object 
-#file = open('nchemex.pdf', 'rb')
-file = open('nchemex.pdf', 'rb')
+# import PyPDF2
+import PyPDF2
 
 
 # In[3]:
+
+
+# read the example pdf defined above
+file = open(pdf_name, 'rb')
+
+
+# In[4]:
 
 
 # creating a pdf reader object
 fileReader = PyPDF2.PdfFileReader(file)
 
 
-# In[4]:
+# In[5]:
 
 
 # print the number of pages in pdf file
 print(fileReader.numPages)
 
 
-# In[5]:
-
-
-fileReader.documentInfo
-
-
 # In[6]:
 
 
-page = fileReader.getPage(0)
+# get document metadata
+fileReader.documentInfo
 
 
 # In[7]:
 
 
-page_content = page.extractText()
+page = fileReader.getPage(0)
 
 
 # In[8]:
 
 
-print (page_content.encode('utf-8'))
+page_content = page.extractText()
 
 
 # In[9]:
 
 
-page_content
+print (page_content.encode('utf-8'))
 
 
-# ## Test Tabula
+# ## Get text and metadata from PDF using TIKA
+# 
+# General information about TIKA
+# https://cwiki.apache.org/confluence/display/TIKA/TikaServer
+# 
+# TIKA python API
+# https://github.com/chrismattmann/tika-python
 
 # In[10]:
 
 
-from tabula import read_pdf
+# import parser from TIKA
+from tika import parser
 
 
 # In[11]:
 
 
-df = read_pdf('BJ-2008.pdf')
+# read example PDF definded above
+parsedPDF = parser.from_file(pdf_name)
 
 
 # In[12]:
 
 
-df
+print(parsedPDF)
 
-
-# ## Test Tika
 
 # In[13]:
 
 
-from tika import parser
+# parsed pdf is stored as a dictionary; here we get the keys
+parsedPDF.keys()
 
 
 # In[14]:
 
 
-parsedPDF = parser.from_file("nchemex.pdf")
+# one of the keys provides the content
+print(parsedPDF['content'])
 
 
 # In[15]:
 
 
-parsedPDF
+# one of the keys provides the metadata
+parsedPDF['metadata']
 
+
+# ### Analyze PDF text with generic tools
 
 # In[16]:
 
 
-parsedPDF.keys()
+# store content in variable
+cont = parsedPDF['content']
 
 
 # In[17]:
 
 
-parsedPDF['content']
+# separate content by a specified sequence of characters
+cont.split('ei')
 
 
 # In[18]:
 
 
-parsedPDF['metadata']
+# separate all lines in the PDF file
+cont.splitlines()
 
 
 # In[19]:
 
 
-cont = parsedPDF['content']
+# get a conent Partition at a specific word
+meth = cont.partition('quasispecies')
 
 
 # In[20]:
 
 
-cont.split('\n')
+print(meth[0])
 
+
+# ## Analyze PDF text with Natural Language Toolkit
+# 
+# Analysis of the text in the PDF can be done using NLTK: https://www.nltk.org
 
 # In[21]:
-
-
-cont.splitlines()
-
-
-# In[22]:
-
-
-meth = cont.partition('Fabritiis')
-
-
-# In[23]:
-
-
-meth[0]
-
-
-# ## Process Text with Natural Language Toolkit
-
-# In[24]:
 
 
 import nltk
 
 
-# In[25]:
+# In[22]:
 
 
 sentence = cont
 
 
-# In[26]:
+# In[23]:
 
 
+# first we tokenize the whole text
 tokens = nltk.word_tokenize(sentence)
 
 
-# In[27]:
+# In[24]:
 
 
 tokens
 
 
-# In[28]:
+# In[25]:
 
 
 text = nltk.Text(tokens)
 
 
-# In[29]:
+# In[26]:
 
 
 textname = text.name
@@ -191,88 +227,98 @@ print(textname)
 text.name
 
 
-# In[30]:
+# In[27]:
 
 
 # Collocations: words occuring together
 text.collocations(num=10)
 
 
-# In[31]:
+# In[28]:
 
 
 # find common context of two words
-text.common_contexts(["binding", "association"])
+text.common_contexts(["with", "and"])
 
 
-# In[32]:
+# In[29]:
 
 
 # occurances of expression within context
-text.concordance('Markov' and 'molecular' and 'atomic', width=100, lines=3)
+text.concordance('virus' and 'cell', width=100, lines=3)
 
 
-# In[33]:
+# In[30]:
+
+
+# occurances of expression within context
+text.concordance('RNA' and 'virus', width=100, lines=3)
+
+
+# In[31]:
 
 
 # occurances of expression within context as list
-conclist = text.concordance_list('Markov' and 'molecular' and 'atomic')
+conclist = text.concordance_list('RNA' and 'virus')
 for n, item in enumerate(conclist):
     print (n)
     print (conclist[n])
 
 
-# In[34]:
+# In[32]:
 
 
 # count number of occurences
-text.count('Markov')
+text.count('virus')
+
+
+# In[33]:
+
+
+# Dispersion plot for word occurences
+text.dispersion_plot(['virus', 'cell', 'RNA'])
+
+
+# In[34]:
+
+
+# find specific expression in text
+text.findall("<virus><dynamics>")
 
 
 # In[35]:
 
 
-# Dispersion plot for word occurences
-text.dispersion_plot(['simulation', 'kinetics', 'Markov'])
+text.index('virus')
 
 
 # In[36]:
 
 
-text.findall("<MD><simulations>")
+text[82:89]
 
 
 # In[37]:
 
 
-text.index('MD')
+# plot frequency of words in text
+text.plot(30)
 
 
 # In[38]:
 
 
-text[82:89]
+# find similar words according to context
+text.similar('model')
 
 
 # In[39]:
 
 
-text.plot(30)
-
-
-# In[40]:
-
-
-text.similar('simulation')
-
-
-# In[41]:
-
-
 text.unicode_repr()
 
 
-# In[42]:
+# In[40]:
 
 
 # analyze text vocabulary
@@ -280,26 +326,30 @@ vocabulary = text.vocab()
 vocabulary
 
 
+# In[41]:
+
+
+# get frequency of given word
+vocabulary.freq('model')
+
+
+# In[42]:
+
+
+# get most common words in vocabulary
+vocabulary.most_common(n=5)
+
+
 # In[43]:
 
 
-vocabulary.freq('simulation')
+# get all vocabulary terms
+vocabulary.keys()
 
 
 # In[44]:
 
 
-vocabulary.most_common(n=5)
-
-
-# In[45]:
-
-
-vocabulary.keys()
-
-
-# In[46]:
-
-
-vocabulary['simulation']
+# get occurrence of given word in vocabulary
+vocabulary['model']
 
