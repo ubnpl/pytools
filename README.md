@@ -1,4 +1,6 @@
-# pytools: simple tools for data handling and analysis in python
+# pytools 
+simple tools for data handling and analysis in python
+
 repository for preliminary tool collection
 
 	WORK IN PROGRESS
