@@ -3,17 +3,17 @@
 
 # # Basic optical character using Tesseract with Python
 # 
-# Tesseract https://en.wikipedia.org/wiki/Tesseract_(software) is a popular free OCR-software https://sourceforge.net/projects/tesseract-ocr/. With a python wrapper it can be used to do OCR in python.
 # 
-# This notebook contains two examples: 
-# How to do a basic OCR for a PDF with incomplete or erroneous text information? For this a PDF of an Article is converted (or imported) as an image and the tesseract package is used for the OCR. 
+# How to do a basic OCR for a PDF with incomplete or erroneous text information? For this a PDF of an Article is converted to an image and the tesseract package is used for the OCR. 
+# 
+# Tesseract is a popular free OCR-software https://sourceforge.net/projects/tesseract-ocr/. With a python wrapper it can be used to do OCR in python.
 
 # Installation of additional python packages (assuming you have the basic anaconda packages installed):
 # 
 # #### basic OCR: install tesseract and opencv
 # conda install opencv
 # 
-# conda install tesseract
+# conda install tesseract -c conda-forge
 # 
 # pip install pytesseract
 # 
@@ -25,7 +25,7 @@
 
 # ## Example PDF file
 # 
-# As an example we use an by A. Einstein which can be downloaded here: https://zenodo.org/record/1601163#.XsUtA7tR2EI as a PDF file. The file contains the scanned image of the article and text information. However, the text information contains errors. We will see if we can do better using the picture only and doing OCR with Tesseract.
+# As an example we use an article by A. Einstein which can be downloaded here: https://zenodo.org/record/1601163#.XsUtA7tR2EI as a PDF file. The file contains the scanned image of the article and text information. However, the text information contains errors. We will see if we can do better using the picture only and doing OCR with Tesseract.
 
 # ## Read badly scanned PDF. 
 # 
@@ -53,7 +53,7 @@ pages[0]
 
 # ## For Comparison: read PDF using TIKA
 # 
-# This part is only to illustrate why we would be interested on optical character recognition for this example. This part can be skipped if you just want to know how to do the OCR. It requires the additional module tika for reading PDFs
+# This part is only to illustrate why we would be interested in optical character recognition for this example. This part can be skipped if you just want to know how to do the OCR. It requires the additional module tika for reading PDFs
 
 # In[4]:
 
@@ -166,7 +166,7 @@ print(extxt)
 
 # ## OCR for entire PDF + additional improvements 
 # 
-# Now we read all the pages (in this case just two) from the PDF. The OCR is slightly improved by adding some image conversion steps (this is not so important here, but may be useful in case of bad image quality). In the end we asseble the text from the PDF into one string, like this it could be used for text analyses.
+# Now we read all the pages (in this case just two) from the PDF. The OCR is slightly improved by adding some image conversion steps (this is not so important here, but may be useful in case of bad image quality). In the end we assemble the text from the PDF into one string, which could then be used e.g. to search for specific expressions.
 
 # In[16]:
 
