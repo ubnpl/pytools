@@ -15,7 +15,10 @@
 
 
 import matplotlib.pyplot as plt
+from mpl_toolkits import mplot3d
+import numpy as np
 import pandas as pd
+from scipy import stats
 import seaborn as sns
 
 
@@ -211,7 +214,7 @@ plt.show()
 # From the documentation at the UCI-site, from where we obtained the data, we know that the iris-dataset has 150 data points with
 # 4 attributes and 1 class each. We know the names of the attributes, so we can generate a pandas dataframe and look at the data in a table-like shape: 
 
-# In[14]:
+# In[15]:
 
 
 # We read the iris-dataset from the .csv-file, define a pandas-dataframe and retrieve information about data size and shape:
@@ -230,50 +233,535 @@ dataframe.head(n=5)
 # - sepal_width and petal_width
 # - petal_length and petal_width
 
-# In[15]:
+# In[16]:
 
 
 fig, axes = plt.subplots(figsize=(18,9), nrows=2, ncols=3)
 
-dataframe.plot(ax=axes[0,0], x="sepal_length (cm)", y="sepal_width (cm)", kind="scatter", color='blue', fontsize=12)
+plt.subplots_adjust(left=None, right=None, bottom=None, top=None, wspace=0.3, hspace=0.4)
 
-dataframe.plot(ax=axes[0,1], x="sepal_length (cm)", y="petal_length (cm)", kind="scatter", color='red', fontsize=12)
+one = dataframe.plot(ax=axes[0,0], x=0, y=1, kind="scatter", color='blue', s=60, fontsize=12)
+one.set_xlabel("sepal length (cm)", fontsize=16, fontweight="bold", labelpad=8)
+one.set_ylabel("sepal width (cm)", fontsize=16, fontweight="bold", labelpad=8)
+one.tick_params(axis="both", labelsize=14)
 
-dataframe.plot(ax=axes[0,2], x="sepal_length (cm)", y="petal_width (cm)", kind="scatter", color='green', fontsize=12)
+two = dataframe.plot(ax=axes[0,1], x=0, y=2, kind="scatter", color='red', s=60, fontsize=12)
+two.set_xlabel("sepal length (cm)", fontsize=16, fontweight="bold", labelpad=8)
+two.set_ylabel("petal length (cm)", fontsize=16, fontweight="bold", labelpad=8)
+two.tick_params(axis="both", labelsize=14)
 
-dataframe.plot(ax=axes[1,0], x="sepal_width (cm)", y="petal_length (cm)", kind="scatter", color='yellow', fontsize=12)
+three = dataframe.plot(ax=axes[0,2], x="sepal_length (cm)", y="petal_width (cm)", kind="scatter", color='green', s=60, fontsize=12)
+three.set_xlabel("sepal length (cm)", fontsize=16, fontweight="bold", labelpad=8)
+three.set_ylabel("petal width (cm)", fontsize=16, fontweight="bold", labelpad=8)
+three.tick_params(axis="both", labelsize=14)
 
-dataframe.plot(ax=axes[1,1], x="sepal_width (cm)", y="sepal_length (cm)", kind="scatter", color='black', fontsize=12)
+four = dataframe.plot(ax=axes[1,0], x="sepal_width (cm)", y="petal_length (cm)", kind="scatter", color='orange', s=60, fontsize=12)
+four.set_xlabel("sepal width (cm)", fontsize=16, fontweight="bold", labelpad=8)
+four.set_ylabel("petal length (cm)", fontsize=16, fontweight="bold", labelpad=8)
+four.tick_params(axis="both", labelsize=14)
 
-dataframe.plot(ax=axes[1,2], x="petal_length (cm)", y="petal_width (cm)", kind="scatter", color='cyan', fontsize=12)
+five = dataframe.plot(ax=axes[1,1], x="sepal_width (cm)", y="sepal_length (cm)", kind="scatter", color='brown', s=60, fontsize=12)
+five.set_xlabel("sepal width (cm)", fontsize=16, fontweight="bold", labelpad=8)
+five.set_ylabel("sepal length (cm)", fontsize=16, fontweight="bold", labelpad=8)
+five.tick_params(axis="both", labelsize=14)
+
+six = dataframe.plot(ax=axes[1,2], x="petal_length (cm)", y="petal_width (cm)", kind="scatter", color='salmon', s=60, fontsize=12)
+six.set_xlabel("petal length (cm)", fontsize=16, fontweight="bold", labelpad=8)
+six.set_ylabel("petal width (cm)", fontsize=16, fontweight="bold", labelpad=8)
+six.tick_params(axis="both", labelsize=14)
 
 plt.show()
 
 
 # The scatter-blots show that in some cases there is a very nice separation of the data points. It would be interesting to know, whether this separation is due to the different iris-species. Therefore, we label the data in one of the scatter-plots according to the iris-species.
 
-# In[16]:
+# ---
+
+# ## Starting from here, the code is without comments. Comments will be included.
+
+# ---
+
+# ## 2.1. Scatter Plots
+
+# In[17]:
 
 
-fig, ax = plt.subplots()
+fig, axes = plt.subplots(figsize=(18,9), nrows=2, ncols=3)
+
+plt.subplots_adjust(left=None, right=None, bottom=None, top=None, wspace=0.3, hspace=0.4)
 
 colors = {'Iris-setosa':'red', 'Iris-versicolor':'blue', 'Iris-virginica':'green'}
 
 grouped = dataframe.groupby('species')
 
 for key, group in grouped:
-    group.plot(ax=ax, kind='scatter', x="sepal_length (cm)", y="sepal_width (cm)", label=key, color=colors[key])
+    
+    first = group.plot(ax=axes[0,0], x=0, y=1, kind="scatter", label=key, color=colors[key], s=60, fontsize=12)
+    first.set_xlabel("sepal length (cm)", fontsize=16, fontweight="bold", labelpad=8)
+    first.set_ylabel("sepal width (cm)", fontsize=16, fontweight="bold", labelpad=8)
+    first.tick_params(axis="both", labelsize=14)
+    
+    second = group.plot(ax=axes[0,1], x=0, y=2, kind="scatter", label=key, color=colors[key], s=60, fontsize=12)
+    second.set_xlabel("sepal length (cm)", fontsize=16, fontweight="bold", labelpad=8)
+    second.set_ylabel("petal length (cm)", fontsize=16, fontweight="bold", labelpad=8)
+    second.tick_params(axis="both", labelsize=14)
+    
+    third = group.plot(ax=axes[0,2], x="sepal_length (cm)", y="petal_width (cm)", kind="scatter", 
+                       label=key, color=colors[key], s=60, fontsize=12)
+    third.set_xlabel("sepal length (cm)", fontsize=16, fontweight="bold", labelpad=8)
+    third.set_ylabel("petal width (cm)", fontsize=16, fontweight="bold", labelpad=8)
+    third.tick_params(axis="both", labelsize=14)
+    
+    fourth = group.plot(ax=axes[1,0], x="sepal_width (cm)", y="petal_length (cm)", kind="scatter", 
+                        label=key, color=colors[key], s=60, fontsize=12)
+    fourth.set_xlabel("sepal width (cm)", fontsize=16, fontweight="bold", labelpad=8)
+    fourth.set_ylabel("petal length (cm)", fontsize=16, fontweight="bold", labelpad=8)
+    fourth.tick_params(axis="both", labelsize=14)
+    
+    fifth = group.plot(ax=axes[1,1], x="sepal_width (cm)", y="sepal_length (cm)", kind="scatter", 
+                           label=key, color=colors[key], s=60, fontsize=12)
+    fifth.set_xlabel("sepal width (cm)", fontsize=16, fontweight="bold", labelpad=8)
+    fifth.set_ylabel("sepal length (cm)", fontsize=16, fontweight="bold", labelpad=8)
+    fifth.tick_params(axis="both", labelsize=14)
+    
+    sixt = group.plot(ax=axes[1,2], x="petal_length (cm)", y="petal_width (cm)", kind="scatter", 
+                          label=key, color=colors[key], s=60, fontsize=12)
+    sixt.set_xlabel("petal length (cm)", fontsize=16, fontweight="bold", labelpad=8)
+    sixt.set_ylabel("petal width (cm)", fontsize=16, fontweight="bold", labelpad=8)
+    sixt.tick_params(axis="both", labelsize=14)
     
 plt.show()
 
 
 # The library **seaborn** is a very handy tool for the parallel visualization of different attributes of a data set:
 
-# In[17]:
+# In[18]:
 
 
 sns.pairplot(dataframe, hue="species", palette={'Iris-setosa':'red', 'Iris-versicolor':'blue', 'Iris-virginica':'green'},
             height=2)
+plt.show()
+
+
+# ---
+
+# In[19]:
+
+
+species_code = []
+for i in range(0,3):
+    for j in range(0,50):
+        species_code.append(int(i))
+
+
+# In[20]:
+
+
+plt.figure(figsize = (16,5))
+
+plt.subplots_adjust(left=None, right=None, bottom=None, top=None, wspace=0.4, hspace=None)
+
+plt.subplot(1,2,1)
+plt.scatter(dataframe["sepal_length (cm)"], dataframe["sepal_width (cm)"], alpha=0.2, 
+            s=100*dataframe["petal_length (cm)"], c=species_code, cmap="viridis")
+plt.xlabel("sepal length (cm)", fontsize=16, fontweight="bold", labelpad=8)
+plt.ylabel("sepal width (cm)", fontsize=16, fontweight="bold", labelpad=8)
+plt.tick_params(axis="both", labelsize=14)
+
+plt.subplot(1,2,2)
+plt.scatter(dataframe["sepal_length (cm)"], dataframe["petal_width (cm)"], alpha=0.2, 
+            s=100*dataframe["petal_length (cm)"], c=species_code, cmap="viridis")
+plt.xlabel("sepal length (cm)", fontsize=16, fontweight="bold", labelpad=8)
+plt.ylabel("petal width (cm)", fontsize=16, fontweight="bold", labelpad=8)
+plt.tick_params(axis="both", labelsize=14)
+
+plt.show()
+
+
+# ### Legends missing, will be included.
+
+# ---
+
+# ## 3D Scatter Plot
+
+# In[21]:
+
+
+fig = plt.figure(figsize=(8,8))
+
+ax = plt.axes(projection="3d")
+ax.scatter3D(dataframe["sepal_length (cm)"], dataframe["sepal_width (cm)"], dataframe["petal_length (cm)"],
+            c=species_code, cmap="viridis", s=150*dataframe["petal_width (cm)"], alpha=0.2)
+ax.set_xlabel("sepal length (cm)", fontsize=16, fontweight="bold", labelpad=10)
+ax.set_ylabel("sepal width (cm)", fontsize=16, fontweight="bold", labelpad=10)
+ax.set_zlabel("petal width (cm)", fontsize=16, fontweight="bold", labelpad=10)
+ax.tick_params(axis="both", labelsize=14)
+ax.view_init(15, 50)
+
+plt.show()
+
+
+# ### Legend missing, will be included.
+
+# ---
+
+# ## 2.2. Histograms
+
+# In[22]:
+
+
+dataframe = pd.read_csv('iris_dataset.csv',names=['sepal_length (cm)','sepal_width (cm)',
+                                                  'petal_length (cm)','petal_width (cm)','species'])
+
+
+# In[23]:
+
+
+plt.figure(figsize = (20,5))
+
+plt.subplots_adjust(left=None, right=None, bottom=None, top=None, wspace=0.4, hspace=None)
+
+plt.subplot(1,4,1)
+plt.hist(dataframe["sepal_length (cm)"], bins=30, color="blue")
+plt.xlabel("sepal length (cm)", fontsize=16, fontweight="bold", labelpad=8)
+plt.ylabel("Frequency", fontsize=16, fontweight="bold", labelpad=8)
+plt.tick_params(axis="both", labelsize=14)
+
+plt.subplot(1,4,2)
+plt.hist(dataframe["sepal_width (cm)"], bins=30, color="red")
+plt.xlabel("sepal width (cm)", fontsize=16, fontweight="bold", labelpad=8)
+plt.ylabel("Frequency", fontsize=16, fontweight="bold", labelpad=8)
+plt.tick_params(axis="both", labelsize=14)
+
+plt.subplot(1,4,3)
+plt.hist(dataframe["petal_length (cm)"], bins=30, color="orange")
+plt.xlabel("petal length (cm)", fontsize=16, fontweight="bold", labelpad=8)
+plt.ylabel("Frequency", fontsize=16, fontweight="bold", labelpad=8)
+plt.tick_params(axis="both", labelsize=14)
+
+plt.subplot(1,4,4)
+plt.hist(dataframe["petal_width (cm)"], bins=30, color="green")
+plt.xlabel("petal width (cm)", fontsize=16, fontweight="bold", labelpad=8)
+plt.ylabel("Frequency", fontsize=16, fontweight="bold", labelpad=8)
+plt.tick_params(axis="both", labelsize=14)
+
+plt.show()
+
+
+# In[24]:
+
+
+df_setosa = dataframe[dataframe['species']=='Iris-setosa']
+df_virginica = dataframe[dataframe['species']=='Iris-virginica']
+df_versicolor = dataframe[dataframe['species']=='Iris-versicolor']
+
+
+# In[25]:
+
+
+hist_sl_s = df_setosa["sepal_length (cm)"].plot(kind="hist", 
+                                                fill=True, histtype='step', 
+                                                label="Iris setosa", color="blue", bins=15, alpha=0.4)
+
+
+hist_sl_s.set_xlabel("sepal length (cm)", fontsize=16, fontweight="bold", labelpad=8)
+hist_sl_s.set_ylabel("Frequency", fontsize=16, fontweight="bold", labelpad=8)
+hist_sl_s.tick_params(axis="both", labelsize=14)
+
+hist_sl_vir = df_virginica["sepal_length (cm)"].plot(kind="hist", 
+                                                fill=True, histtype='step', 
+                                                label="Iris virginica", color="orange", bins=15, alpha=0.4)
+
+hist_sl_vers = df_versicolor["sepal_length (cm)"].plot(kind="hist", 
+                                                fill=True, histtype='step', 
+                                                label="Iris versicolor", color="green", bins=15, alpha=0.4)
+
+plt.legend()
+plt.show()
+
+
+# In[26]:
+
+
+fig, axes = plt.subplots(figsize=(20,10), nrows=2, ncols=2)
+
+plt.subplots_adjust(left=None, right=None, bottom=None, top=None, wspace=0.4, hspace=0.4)
+
+colors = {'Iris-setosa':'red', 'Iris-versicolor':'blue', 'Iris-virginica':'green'}
+
+grouped = dataframe.groupby('species')
+
+for element, group in grouped:
+    sl = group["sepal_length (cm)"].plot(ax=axes[0,0], kind='hist', label=element, color=colors[element], alpha=0.3, bins=15)
+    sl.set_xlabel("sepal length (cm)", fontsize=16, fontweight="bold", labelpad=8)
+    sl.set_ylabel("Frequency", fontsize=16, fontweight="bold", labelpad=8)
+    sl.tick_params(axis="both", labelsize=14)
+    sl.legend()
+    
+    sw = group["sepal_width (cm)"].plot(ax=axes[0,1], kind='hist', label=element, color=colors[element], alpha=0.3, bins=15)
+    sw.set_xlabel("sepal width (cm)", fontsize=16, fontweight="bold", labelpad=8)
+    sw.set_ylabel("Frequency", fontsize=16, fontweight="bold", labelpad=8)
+    sw.tick_params(axis="both", labelsize=14)
+    sw.legend()
+    
+    pl = group["petal_length (cm)"].plot(ax=axes[1,0], kind='hist', label=element, color=colors[element], alpha=0.3, bins=5)
+    pl.set_xlabel("petal length (cm)", fontsize=16, fontweight="bold", labelpad=8)
+    pl.set_ylabel("Frequency", fontsize=16, fontweight="bold", labelpad=8)
+    pl.tick_params(axis="both", labelsize=14)
+    pl.legend()
+    
+    pw = group["petal_width (cm)"].plot(ax=axes[1,1], kind='hist', label=element, color=colors[element], alpha=0.3, bins=5)
+    pw.set_xlabel("petal width (cm)", fontsize=16, fontweight="bold", labelpad=8)
+    pw.set_ylabel("Frequency", fontsize=16, fontweight="bold", labelpad=8)
+    pw.tick_params(axis="both", labelsize=14)
+    pw.legend()
+    
+plt.show()
+
+
+# In[27]:
+
+
+fig, axes = plt.subplots(figsize=(20,5), nrows=1, ncols=4)
+
+plt.subplots_adjust(left=None, right=None, bottom=None, top=None, wspace=0.4, hspace=None)
+
+hist_sl_s = df_setosa["sepal_length (cm)"].plot(ax=axes[0], kind="hist", 
+                                                fill=True, histtype='step', 
+                                                label="Iris setosa", color="blue", bins=15, alpha=0.4)
+
+hist_sl_vir = df_virginica["sepal_length (cm)"].plot(ax=axes[0], kind="hist", 
+                                                fill=True, histtype='step', 
+                                                label="Iris virginica", color="orange", bins=15, alpha=0.4)
+
+hist_sl_vers = df_versicolor["sepal_length (cm)"].plot(ax=axes[0], kind="hist", 
+                                                fill=True, histtype='step', 
+                                                label="Iris versicolor", color="green", bins=15, alpha=0.4)
+
+hist_sl_s.set_xlabel("sepal length (cm)", fontsize=16, fontweight="bold", labelpad=8)
+hist_sl_s.set_ylabel("Frequency", fontsize=16, fontweight="bold", labelpad=8)
+hist_sl_s.tick_params(axis="both", labelsize=14)
+hist_sl_s.legend()
+
+######################################################################################################################
+
+hist_sw_s = df_setosa["sepal_width (cm)"].plot(ax=axes[1], kind="hist", 
+                                                fill=True, histtype='step', 
+                                                label="Iris setosa", color="blue", bins=15, alpha=0.4)
+
+hist_sw_vir = df_virginica["sepal_width (cm)"].plot(ax=axes[1], kind="hist", 
+                                                fill=True, histtype='step', 
+                                                label="Iris virginica", color="orange", bins=15, alpha=0.4)
+
+hist_sw_vers = df_versicolor["sepal_width (cm)"].plot(ax=axes[1], kind="hist", 
+                                                fill=True, histtype='step', 
+                                                label="Iris versicolor", color="green", bins=15, alpha=0.4)
+
+hist_sw_s.set_xlabel("sepal width (cm)", fontsize=16, fontweight="bold", labelpad=8)
+hist_sw_s.set_ylabel("Frequency", fontsize=16, fontweight="bold", labelpad=8)
+hist_sw_s.tick_params(axis="both", labelsize=14)
+hist_sw_s.legend()
+
+##############################################################################################################################
+
+hist_pl_s = df_setosa["petal_length (cm)"].plot(ax=axes[2], kind="hist", 
+                                                fill=True, histtype='step', 
+                                                label="Iris setosa", color="blue", bins=15, alpha=0.4)
+
+hist_pl_vir = df_virginica["petal_length (cm)"].plot(ax=axes[2], kind="hist", 
+                                                fill=True, histtype='step', 
+                                                label="Iris virginica", color="orange", bins=15, alpha=0.4)
+
+hist_pl_vers = df_versicolor["petal_length (cm)"].plot(ax=axes[2], kind="hist", 
+                                                fill=True, histtype='step', 
+                                                label="Iris versicolor", color="green", bins=15, alpha=0.4)
+
+hist_pl_s.set_xlabel("petal length (cm)", fontsize=16, fontweight="bold", labelpad=8)
+hist_pl_s.set_ylabel("Frequency", fontsize=16, fontweight="bold", labelpad=8)
+hist_pl_s.tick_params(axis="both", labelsize=14)
+hist_pl_s.legend()
+
+###############################################################################################################################
+
+hist_pw_s = df_setosa["petal_width (cm)"].plot(ax=axes[3], kind="hist", 
+                                                fill=True, histtype='step', 
+                                                label="Iris setosa", color="blue", bins=15, alpha=0.4)
+
+hist_pw_vir = df_virginica["petal_width (cm)"].plot(ax=axes[3], kind="hist", 
+                                                fill=True, histtype='step', 
+                                                label="Iris virginica", color="orange", bins=15, alpha=0.4)
+
+hist_pw_vers = df_versicolor["petal_width (cm)"].plot(ax=axes[3], kind="hist", 
+                                                fill=True, histtype='step', 
+                                                label="Iris versicolor", color="green", bins=15, alpha=0.4)
+
+hist_pw_s.set_xlabel("petal width (cm)", fontsize=16, fontweight="bold", labelpad=8)
+hist_pw_s.set_ylabel("Frequency", fontsize=16, fontweight="bold", labelpad=8)
+hist_pw_s.tick_params(axis="both", labelsize=14)
+hist_pw_s.legend()
+
+plt.show()
+
+
+# ---
+
+# ## 2.3. KDE-Plots
+
+# With matplotlib
+
+# In[28]:
+
+
+fig, ax = plt.subplots()
+colors = ['darkblue','orange', 'green']
+
+kde = stats.gaussian_kde(df_setosa['sepal_length (cm)'])
+xs = np.linspace(3.5, 9, num=100)
+ys = kde(xs)
+ax.plot(xs, ys, color = colors[0], label = 'Iris Setosa')
+plt.fill_between(xs,ys, color = colors[0], alpha = 0.2)
+
+kde = stats.gaussian_kde(df_virginica['sepal_length (cm)'])
+xs = np.linspace(3.5, 9, num=100)
+ys = kde(xs)
+ax.plot(xs, ys, color = colors[1], label = 'Iris Virginica')
+plt.fill_between(xs,ys, color = colors[1], alpha = 0.2)
+
+kde = stats.gaussian_kde(df_versicolor['sepal_length (cm)'])
+xs = np.linspace(3.5, 9, num=100)
+ys = kde(xs)
+ax.plot(xs, ys, color = colors[2], label = 'Iris Versicolor')
+plt.fill_between(xs,ys, color = colors[2], alpha = 0.2)
+
+plt.legend()
+plt.xlabel('Sepal Length (cm)')
+plt.ylabel('Density')
+plt.title("Sepal Length KDE-Plot", fontsize=18)
+
+plt.show()
+
+
+# In[29]:
+
+
+fig, ax = plt.subplots()
+colors = ['darkblue','orange', 'green']
+
+kde = stats.gaussian_kde(df_setosa['sepal_length (cm)'])
+xs = np.linspace(3.5, 9, num=100)
+ys = kde(xs)
+ax.plot(xs, ys, color = colors[0], label = 'Iris Setosa')
+ax.hist(df_setosa['sepal_length (cm)'], fill = True, alpha = 0.2, histtype = 'step', color = colors[0], bins = 10,
+        density = True)
+plt.fill_between(xs,ys, color = colors[0], alpha = 0.2)
+
+kde = stats.gaussian_kde(df_virginica['sepal_length (cm)'])
+xs = np.linspace(3.5, 9, num=100)
+ys = kde(xs)
+ax.plot(xs, ys, color = colors[1], label = 'Iris Virginica')
+ax.hist(df_virginica['sepal_length (cm)'], fill = True, alpha = 0.2, histtype = 'step', color = colors[1], bins = 10,
+        density = True)
+plt.fill_between(xs,ys, color = colors[1], alpha = 0.2)
+
+kde = stats.gaussian_kde(df_versicolor['sepal_length (cm)'])
+xs = np.linspace(3.5, 9, num=100)
+ys = kde(xs)
+ax.plot(xs, ys, color = colors[2], label = 'Iris Versicolor')
+ax.hist(df_versicolor['sepal_length (cm)'], fill = True, alpha = 0.2, histtype = 'step', color = colors[2], bins = 10,
+        density = True)
+plt.fill_between(xs,ys, color = colors[2], alpha = 0.2)
+
+plt.legend()
+plt.xlabel('Sepal Length (cm)')
+plt.ylabel('Density/ Frequency')
+plt.title("Sepal Length KDE and Histo-Plot", fontsize=14)
+
+plt.show()
+
+
+# In[30]:
+
+
+fig, ax = plt.subplots()
+colors = ['darkblue','orange', 'green', 'red']
+
+kde = stats.gaussian_kde(df_setosa['sepal_length (cm)'])
+xs = np.linspace(-0.5, 7, num=100)
+ys = kde(xs)
+ax.plot(xs, ys, color = colors[0], label = 'sepal length')
+plt.fill_between(xs,ys, color = colors[0], alpha = 0.2)
+
+kde = stats.gaussian_kde(df_setosa['sepal_width (cm)'])
+xs = np.linspace(-0.5, 7, num=100)
+ys = kde(xs)
+ax.plot(xs, ys, color = colors[1], label = 'sepal width')
+plt.fill_between(xs,ys, color = colors[1], alpha = 0.2)
+
+kde = stats.gaussian_kde(df_setosa['petal_length (cm)'])
+xs = np.linspace(-0.5, 7, num=100)
+ys = kde(xs)
+ax.plot(xs, ys, color = colors[2], label = 'petal length')
+plt.fill_between(xs,ys, color = colors[2], alpha = 0.2)
+
+kde = stats.gaussian_kde(df_setosa['petal_width (cm)'])
+xs = np.linspace(-0.5, 7, num=100)
+ys = kde(xs)
+ax.plot(xs, ys, color = colors[3], label = 'petal width')
+plt.fill_between(xs,ys, color = colors[3], alpha = 0.2)
+
+
+plt.legend()
+plt.xlabel('Size')
+plt.ylabel('Density')
+plt.title("Iris Setosa KDE-Plot", fontsize=18)
+
+plt.show()
+
+
+# With Seaborn:
+
+# In[31]:
+
+
+sns.kdeplot(df_setosa["sepal_length (cm)"], color="blue", shade=True)
+sns.kdeplot(df_setosa["sepal_width (cm)"], color="red", shade=True)
+sns.kdeplot(df_setosa["petal_length (cm)"], color="green", shade=True)
+sns.kdeplot(df_setosa["petal_width (cm)"], color="orange", shade=True)
+plt.xlabel("Size", fontsize=18)
+plt.ylabel("Density", fontsize=18)
+plt.title("Iris Setosa KDE-Plot", fontsize=18)
+plt.show()
+
+
+# ## 2.4. Boxplots
+
+# In[32]:
+
+
+color = dict(boxes='DarkGreen', whiskers='DarkOrange',
+             medians='DarkBlue', caps='Gray')
+
+
+# In[33]:
+
+
+fig, axes = plt.subplots(figsize=(20,5), nrows=1, ncols=3)
+
+boxplot_set = df_setosa.plot.box(ax=axes[0], color=color)
+boxplot_set.set(title="Iris Setosa")
+boxplot_set.set_ylabel("Size (cm)")
+boxplot_set.set_xticklabels(["Sepal Length", "Sepal Width", "Petal Length", "Petal Width"])
+
+boxplot_vir = df_virginica.plot.box(ax=axes[1], color=color)
+boxplot_vir.set(title="Iris Virginica")
+boxplot_vir.set_ylabel("Size (cm)")
+boxplot_vir.set_xticklabels(["Sepal Length", "Sepal Width", "Petal Length", "Petal Width"])
+
+boxplot_ver = df_versicolor.plot.box(ax=axes[2], color=color)
+boxplot_ver.set(title="Iris Versicolor")
+boxplot_ver.set_ylabel("Size (cm)")
+boxplot_ver.set_xticklabels(["Sepal Length", "Sepal Width", "Petal Length", "Petal Width"])
+
 plt.show()
 
 

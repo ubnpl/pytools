@@ -10,3 +10,7 @@ this notebook is under construction (work in progress)
 - generate a data frame with pandas
 - use scatter-plots to visualize data
 - use seaborn to generate a pairplot
+- generate a 3D scatter plot
+- generate histograms
+- generate KDE-plots
+- generate boxplots
