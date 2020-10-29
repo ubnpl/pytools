@@ -25,3 +25,8 @@ It exclusively resorts to the Iris data set.
 - data visualization with scatter plots (different types)
 - data visualization with histograms and KDE-plots (different approaches)
 - data visualization with boxplots (described in detail)
+
+### Data_Visualization_with_Python_CL_HS2020
+
+This notebook is a slightly modified version of the notebook basic_data_visualization_IRIS.
+
