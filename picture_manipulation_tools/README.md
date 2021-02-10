@@ -1,5 +1,5 @@
-tools for manipulating pictures pictures
-=======================================
+tools for manipulating pictures
+===============================
 
 basic_picture_tools:   basic format, color and geometric transformations of pictures
 
